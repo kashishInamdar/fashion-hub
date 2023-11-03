@@ -4,7 +4,8 @@ import dotenv from "dotenv"
 dotenv.config();
 
 import User from "./models/User.js";
-console.log(`User : ${User}`)
+import Product from "./models/Product.js";
+
 
 const app = express();
 app.use(express.json());
@@ -75,6 +76,141 @@ app.post("/login" , async (req , res)=>{
         });
     }
 })
+
+// GET /products
+app.get("/products", async (req , res)=>{
+    const products = await Product.find();
+
+    res.json({
+        success : true , 
+        data : products,
+        message : "succsessfully find products "
+    })
+    
+
+})
+
+// Post /product
+
+app.post("/product", async (req , res)=>{
+    const {name , image, description , price, category , brand } = req.body;
+    try{
+        const product = new Product({
+            name,
+            image,
+            description,
+            price,
+            category,
+            brand,
+        }) ;
+    
+        const savedProduct = await product.save();
+
+        res.json({
+            success : true,
+            data : savedProduct,
+            massage : " Succrssfully add Product "
+        })
+
+
+    }
+    catch(err){
+        return res.json({
+            success : false,
+            message : err.message,
+        })
+    }
+   
+
+});
+
+// GET /product/:id
+
+app.get("/product/:id" , async (req , res)=>{
+    const {id} = req.params;
+
+    try{
+         const product = await Product.findById(id);
+
+    res.json({
+        success : true , 
+        data : product,
+        message : "Product find successfully"
+    })
+    }
+    catch(err){
+      res.json({
+        success : false,
+        message : err.message
+      })
+    }
+   
+})
+ 
+// Delete /product/:id 
+app.delete("/product/:id" , async (req ,res)=>{
+    const {id} = req.params;
+
+    await Product.deleteOne({_id : id})
+
+    res.json({
+        success : true , 
+        massage : "Product Deleted"
+    })
+})
+
+// Put /prosuct/:id
+app.put("/product/:id" , async (req , res)=>{
+    const {id} = req.params ;
+    const {
+        name ,
+        image,
+        price,
+        description,
+        category,
+        brand,
+    } = req.body ; 
+    
+
+    try {
+        await Product.updateOne({_id : id} , {$set : {
+            name : name   ,
+           image : image,
+           price : price,
+           description : description,
+           category : category,
+           brand : brand , 
+       }});
+   
+       const updatedProduct = await Product.findById(id);
+   
+       res.json({
+           success : true , 
+           data : updatedProduct , 
+           message : " Product Update Successfully "
+       });
+    } catch (err) {
+        res.json({
+            success : false,
+            message : err.message,
+        })
+    }
+
+})
+
+// Get /products/search?query=Sam
+
+app.get("/products/search" , async (req , res)=>{
+    const {q} = req.query;
+    const products = await Product.find({name : {$regex : q , $options : "i" }});
+
+    res.json({
+        success: true,
+        data : products,
+        massage: "Successfully Find Products ",
+    })
+});
+
 const PORT = process.env.PORT || 5000; 
 
 app.listen(PORT , ()=>{

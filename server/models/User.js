@@ -28,6 +28,9 @@ const userSchema = new Schema({
         default : "preferd not to say"
     }
 
+},
+{
+    timestamps : true  // set the time on Databas when we create or update the Document or Elment
 });
 
 const User = model("User" , userSchema);
