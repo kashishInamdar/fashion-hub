@@ -146,7 +146,7 @@ const SignUP =  ()=>{
                </div>
 
                <button type="button" 
-               className="btn" 
+               className="submit-btn" 
                onClick={signup}
                > SignUP</button>
 
